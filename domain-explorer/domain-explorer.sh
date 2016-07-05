@@ -140,7 +140,15 @@ function parse_args(){
 }
 
 function display_help(){
-    echo display_help
+    echo
+    echo ":: Usage: domain-explorer [-u URL] [-o OUTPUT FILE] [-s SEPARATOR] [-c CONTAINS]"
+    echo
+    echo ":: URL: The target url to gather information. MUST be a reachable domain."
+    echo ":: OUTPUT: The file to store the output generated."
+    echo ":: CONTAINS: Only outputs the domains that contain the specified pattern. Useful to output only subdomains. Ex: -c google.com."
+    echo ":: SEPARATOR: The separator of the domain found and the ip in output. Ex: www.google.com:200.175.224.99 Separator=':'"
+    echo ":: VERBOSE|QUIET: Operation mode can be specified by '-v|--verbose' or '-q|--quiet'"
+    echo ":: VERSION: To see the version and useful informations, use '-v|--version'"
 }
 
 # This function prints a message of error and exits the program
