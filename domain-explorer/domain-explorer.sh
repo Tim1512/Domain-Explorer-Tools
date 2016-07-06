@@ -9,30 +9,34 @@
 #------------------------------------------------------------------------------------------------------------
 
 SEPARATOR=":"           # This is the separator for the output. Default will be <domain>:<ip>
-OUTPUT=""               # The file to write the output
+OUTPUT="hosts.txt"      # The file to write the output
 URL=""                  # The url to explore
 QUIET=false             # Operate in quiet mode
 VERBOSE=false           # Operate in verbose mode
 CONTAINS=""             # To show only domains that contains this piece
+DOMAINS="tmp_domain"    # The temporary file to store the domains
 
 # This function performs the actions to explore a given domain
 function main(){
-    echo "--> Checking $1..."                               # User feedback
-
-    # Check if the url is a valid url
-    # Hide the output of ping, including error messagens
-    ping -q -c1 $1 > /dev/null 2> /dev/null
-
-    if [ $? -ne 0 ]; then
-        # Display error message
-        echo -e "Unreachable url $1\nAborting..."
-        # Finish the script execution
-        exit 1
+    if ! $QUIET; then
+        echo "==> Checking $URL..."                             # User feedback
     fi
 
-    # Starting downloading the index.html file
-    echo "--> Downloading index file..."
-    wget -q $1
+    ping -q -c1 $URL > /dev/null 2> /dev/null                   # Check if the url is a valid url
+
+    if [ $? -ne 0 ]; then                                       # Finish script with error if the url is unreachable
+        error_with_message "Unreachable url $URL. Aborting..."
+    fi
+
+    if ! $QUIET; then
+        echo "==> Downloading index file..."                    # Starting downloading the index.html file
+    fi
+
+    wget -q $URL
+
+    if ! $QUIET; then
+        echo "==> Searching for internal domains..."
+    fi
 
     # Cleaning the html file:
     # - Grepping only the href= lines
@@ -40,27 +44,39 @@ function main(){
     # - Grepping only line with dot .
     # - Removing the lines with <li> tags
     # - Remove repeated lines
-    echo "--> Searching for internal domains..."
     cat index.html | grep href= | cut -d "/" -f 3 | grep "\." | cut -d '"' -f 1 | grep -v "<li" | sort -u > $DOMAINS
 
-    # Finding which host have an ip addres
-    echo "--> Checking internal domains..."
+    if ! $QUIET; then
+        echo "==> Checking internal domains..."
+    fi
+
     # Iterating through all founded domains
     # - Displaying in screen
     # - Saving into $HOSTS file
     for domain in $(cat $DOMAINS); do
-        # For verbose output
-        # host $domain | grep "has address" | tee -a $HOSTS
-        host $domain | grep "has address" >> $HOSTS
+        if ! [ -z $CONTAINS ]; then
+            if $VERBOSE; then
+                host $domain 2> /dev/null | grep "$CONTAINS" | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" | tee -a $OUTPUT
+            else
+                host $domain 2> /dev/null | grep "$CONTAINS" | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" &>> $OUTPUT
+            fi
+        else 
+            if $VERBOSE; then
+                host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" | tee -a $OUTPUT
+            else
+                host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" &>> $OUTPUT
+            fi
+        fi
     done
 
-    echo "--> Generating output file: $HOSTS..."
+    if ! $QUIET; then
+        echo "==> Generating output file: $OUTPUT..."
+        echo "==> Removing auxiliary files..."
+    fi
 
-    # Cleaning the auxiliary files
-    echo "--> Removing auxiliary files..."
-    rm $DOMAINS index.html
+    rm $DOMAINS index.html                                      # Cleaning the auxiliary files
 
-    echo "--> Hosts are in $HOSTS!"
+    echo "==> Hosts are in $OUTPUT!"
 
     return 0
 }
@@ -74,7 +90,7 @@ function parse_args(){
 
     while (( "$#" )); do            # Stays in the loop as long as the number of parameters is greater than 0
         case $1 in                  # Switch through cases to see what arg was passed
-            -v|--version) 
+            --version) 
                 echo ":: Author: Giovani Ferreira"
                 echo ":: Source: https://github.com/giovanifss/Domain-Explorer-Tools"
                 echo ":: License: GPLv3"
@@ -148,7 +164,7 @@ function display_help(){
     echo ":: CONTAINS: Only outputs the domains that contain the specified pattern. Useful to output only subdomains. Ex: -c google.com."
     echo ":: SEPARATOR: The separator of the domain found and the ip in output. Ex: www.google.com:200.175.224.99 Separator=':'"
     echo ":: VERBOSE|QUIET: Operation mode can be specified by '-v|--verbose' or '-q|--quiet'"
-    echo ":: VERSION: To see the version and useful informations, use '-v|--version'"
+    echo ":: VERSION: To see the version and useful informations, use '--version'"
 }
 
 # This function prints a message of error and exits the program
