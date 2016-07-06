@@ -23,8 +23,9 @@ A bash script to solve intern domains of a given url:
 ``` chmod +x domain-explorer.sh ```
 
 - Usage examples:
-- ```./domain-explorer.sh -u www.fbi.gov --output-file fbi-domains.txt```: This will parse the information in ```index.html``` and store in ```fbi-domains.txt```.
-- ```./domain-explorer.sh --url www.github.com -s '::::'```: This will parse the information in ```index.html``` and use ```::::``` as a separator for domain and ip.
+- ```./domain-explorer.sh -u www.fbi.gov --output-file fbi-domains.txt```: This will parse the information and store in ```fbi-domains.txt```.
+- ```./domain-explorer.sh --url www.github.com -s '::::'```: This will parse the information and use ```::::``` as a separator for domain and ip.
+- ```./domain-explorer.sh -u thehackernews.com --contains 'history'```: This will parse the information but only output domains that contains ```history``` in the url.
 
 ## Brute Force Subdomain
 A bash script to find subdomains of a given url, using brute force approach:  
