@@ -9,14 +9,22 @@ A bash script to solve intern domains of a given url:
 - Solve subdomains through host command  
 - Output host's ips  
 
+#### Parameters:
+- ```-u | --url```: The target url to gather information
+- ```-s | --separator```: The separator to be used in output. The output is ```<domain> <separator> <ip>```.
+- ```-c | --contains```: The program will output only the domains that contains the specified string.
+- ```-o | --output-file```: Specify the output file to program.
+- ```-v | --verbose```: Set operation mode to verbose, note that this can not be used together with ```--quiet```.
+- ```-q | --quiet```: Set operation mode to quiet, note that this can not be used together with ```--verbose```.
+- ```--version```: Outputs relevant information about the script.
+
 #### Usage
 - Give permition for the file:  
 ``` chmod +x domain-explorer.sh ```
 
-- Execute passing the desired url to find hosts:  
-``` ./domain-explorer.sh <your desired url> ```
-
-- The hosts and address will be in hosts.txt file  
+- Usage examples:
+- ```./domain-explorer.sh -u www.fbi.gov --output-file fbi-domains.txt```: This will parse the information in ```index.html``` and store in ```fbi-domains.txt```.
+- ```./domain-explorer.sh --url www.github.com -s '::::'```: This will parse the information in ```index.html``` and use ```::::``` as a separator for domain and ip.
 
 ## Brute Force Subdomain
 A bash script to find subdomains of a given url, using brute force approach:  
