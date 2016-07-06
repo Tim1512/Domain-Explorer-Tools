@@ -53,19 +53,11 @@ function main(){
     # Iterating through all founded domains
     # - Displaying in screen
     # - Saving into $HOSTS file
-    for domain in $(cat $DOMAINS); do
-        if ! [ -z $CONTAINS ]; then
-            if $VERBOSE; then
-                host $domain 2> /dev/null | grep "$CONTAINS" | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" | tee -a $OUTPUT
-            else
-                host $domain 2> /dev/null | grep "$CONTAINS" | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" &>> $OUTPUT
-            fi
-        else 
-            if $VERBOSE; then
-                host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" | tee -a $OUTPUT
-            else
-                host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" &>> $OUTPUT
-            fi
+    for domain in $(cat $DOMAINS | grep "$CONTAINS"); do
+        if $VERBOSE; then
+            host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" | tee -a $OUTPUT
+        else
+            host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" &>> $OUTPUT
         fi
     done
 
