@@ -15,6 +15,7 @@ QUIET=false             # Operate in quiet mode
 VERBOSE=false           # Operate in verbose mode
 CONTAINS=""             # To show only domains that contains this piece
 DOMAINS="tmp_domain"    # The temporary file to store the domains
+NOTSOLVE=false          # To keep all domains without trying to solve ip's
 
 # This function performs the actions to explore a given domain
 function main(){
@@ -50,24 +51,28 @@ function main(){
         echo "==> Checking internal domains..."
     fi
 
-    # Iterating through all founded domains
-    # - Displaying in screen
-    # - Saving into $HOSTS file
-    for domain in $(cat $DOMAINS | grep "$CONTAINS"); do
-        if $VERBOSE; then
-            host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" | tee -a $OUTPUT
-        else
-            host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" &>> $OUTPUT
+    if ! $NOTSOLVE; then
+        # Iterating through all founded domains
+        # - Displaying in screen
+        # - Saving into $HOSTS file
+        for domain in $(cat $DOMAINS | grep "$CONTAINS"); do
+            if $VERBOSE; then
+                host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" | tee -a $OUTPUT
+            else
+                host $domain 2> /dev/null | grep "has address" | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" &>> $OUTPUT
+            fi
+        done
+
+        if ! $QUIET; then
+            echo "==> Generating output file: $OUTPUT..."
+            echo "==> Removing auxiliary files..."
         fi
-    done
-
-    if ! $QUIET; then
-        echo "==> Generating output file: $OUTPUT..."
-        echo "==> Removing auxiliary files..."
+    else
+        mv $DOMAINS $OUTPUT                                     # Outputs the domains without looking for ip's
     fi
-
-    rm $DOMAINS index.html                                      # Cleaning the auxiliary files
-
+    
+    rm $DOMAINS index.html 2> /dev/null                         # Cleaning the auxiliary files
+    
     echo "==> Hosts are in $OUTPUT!"
 
     return 0
@@ -82,7 +87,7 @@ function parse_args(){
 
     while (( "$#" )); do            # Stays in the loop as long as the number of parameters is greater than 0
         case $1 in                  # Switch through cases to see what arg was passed
-            --version) 
+            -V|--version) 
                 echo ":: Author: Giovani Ferreira"
                 echo ":: Source: https://github.com/giovanifss/Domain-Explorer-Tools"
                 echo ":: License: GPLv3"
@@ -129,6 +134,9 @@ function parse_args(){
                 CONTAINS=$2
                 shift;;             # To ensure that the next parameter will not be evaluated again
 
+            -n|--not-solve)         # Set operation mode to not solve de domains founded, outputing everything
+                NOTSOLVE=true;;
+
             -h|--help)              # Display the help message
                 display_help
                 exit 0;;
@@ -155,8 +163,9 @@ function display_help(){
     echo ":: OUTPUT: The file to store the output generated."
     echo ":: CONTAINS: Only outputs the domains that contain the specified pattern. Useful to output only subdomains. Ex: -c google.com."
     echo ":: SEPARATOR: The separator of the domain found and the ip in output. Ex: www.google.com:200.175.224.99 Separator=':'"
+    echo ":: NOT SOLVE: Set option '-n|--not-solve' to output all domains inside index without looking for ip's"
     echo ":: VERBOSE|QUIET: Operation mode can be specified by '-v|--verbose' or '-q|--quiet'"
-    echo ":: VERSION: To see the version and useful informations, use '--version'"
+    echo ":: VERSION: To see the version and useful informations, use '-V|--version'"
 }
 
 # This function prints a message of error and exits the program
