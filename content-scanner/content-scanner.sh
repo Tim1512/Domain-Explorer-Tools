@@ -26,21 +26,24 @@ function main {
     fi
     
     for attempt in $(cat $WORDLIST); do                                     # Read the wordlist and attempt every possibility
+        echo -ne ":: Trying for $URL/$attempt                    \r"
         resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt)        # Checking for file in domain
         
         if [ $resp -ne '200' ]; then                                        # If file doesn't exist
             resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt/)   # Check for directory in domain
             
             if [ $resp -eq '200' ]; then                                    # If directory exists
-                echo "--> Directory Found: $(echo $URL/$attempt/ | tee -a $OUTPUT)"  
+                echo "==> Directory Found: $(echo $URL/$attempt/ | tee -a $OUTPUT)"  
             fi
         else                                                                # If file exists
-            echo "--> File Found: $(echo $URL/$attempt | tee -a $OUTPUT)" 
+            echo "==> File Found: $(echo $URL/$attempt | tee -a $OUTPUT)" 
         fi
     done
 
-    echo "==> Finished brute force in $URL"
-    echo ":: Results stored in $OUTPUT"                                     # Showing the location of the result
+    if ! $QUIET ; then
+        echo "==> Finished brute force in $URL"
+        echo ":: Results stored in $OUTPUT"                                     # Showing the location of the result
+    fi
 }
 
 function parse_args {
@@ -64,6 +67,14 @@ function parse_args {
                 fi
                 OUTPUT=$2
                 shift;;             # To ensure that the next parameter will not be evaluated again
+
+            -w|--wordlist)          # Get the next arg to be the output file
+                if [ -z $2 ] || [[ $2 == -* ]]; then
+                    error_with_message "Expected argument after wordlist option"
+                fi
+                WORDLIST=$2
+                shift;;             # To ensure that the next parameter will not be evaluated again
+
 
             -q|--quiet)             # Set the program operation mode to quiet
                 if $VERBOSE; then   # Program can not behave quiet and verbose at same time
@@ -99,7 +110,15 @@ function parse_args {
 }
 
 function display_help {
-    echo display_help
+    echo
+    echo ":: Usage: domain-explorer [URL] [-w WORDLIST] [-o OUTPUT FILE] "
+    echo
+    echo ":: URL: The target url to gather information. MUST be a reachable domain."
+    echo ":: OUTPUT: The file to store the output generated."
+    echo ":: WORDLIST: The path to wordlist to use in the attack."
+    echo ":: VERBOSE|QUIET: Operation mode can be specified by '-v|--verbose' or '-q|--quiet'"
+    echo ":: VERSION: To see the version and useful informations, use '-V|--version'"
+
     return 0
 }
 
