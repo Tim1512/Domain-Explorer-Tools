@@ -16,9 +16,7 @@ VERBOSE=false                   # Operation mode verbose
 
 function main {
     if [ ! -e $WORDLIST ]; then                                             # Check if the wordlist exists
-        # Abort the script execution
-        echo "Unable to locate the wordlist $WORDLIST"
-        exit 1
+        error_with_message "Unable to locate the wordlist $WORDLIST"        # Abort the script execution
     fi
     
     if ! $QUIET ; then
@@ -26,17 +24,27 @@ function main {
     fi
     
     for attempt in $(cat $WORDLIST); do                                     # Read the wordlist and attempt every possibility
-        echo -ne ":: Trying for $URL/$attempt                    \r"
-        resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt)        # Checking for file in domain
-        
-        if [ $resp -ne '200' ]; then                                        # If file doesn't exist
-            resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt/)   # Check for directory in domain
-            
-            if [ $resp -eq '200' ]; then                                    # If directory exists
-                echo "==> Directory Found: $(echo $URL/$attempt/ | tee -a $OUTPUT)"  
+        echo -ne ":: Trying for $URL/$attempt/                              \r"
+        resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt/)        # Checking for file in domain
+
+        regex=""
+
+        if $VERBOSE; then
+            regex="^[0-9]"
+        else
+            regex="^[23]"
+        fi
+
+        if ! [[ $resp =~ $regex ]]; then                                    # If query return http code 1* or 4* or 5*
+            echo -ne ":: Trying for $URL/$attempt                           \r"
+
+            resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt)   # Check for directory in domain
+
+            if [[ $resp =~ $regex ]]; then                                  # If query return http code 1* or 4* or 5*
+                echo "==> File Found: $(echo $URL/$attempt :: $resp | tee -a $OUTPUT)" 
             fi
         else                                                                # If file exists
-            echo "==> File Found: $(echo $URL/$attempt | tee -a $OUTPUT)" 
+            echo "==> Directory Found: $(echo $URL/$attempt/ :: $resp | tee -a $OUTPUT)"  
         fi
     done
 
