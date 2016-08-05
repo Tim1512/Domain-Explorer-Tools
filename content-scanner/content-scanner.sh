@@ -13,6 +13,7 @@ WORDLIST="content.wordlist"     # Set the default wordlist file
 URL=""                          # The target url
 QUIET=false                     # Operation mode quiet
 VERBOSE=false                   # Operation mode verbose
+ONLYOK=false                    # Operation mode only exist
 
 function main {
     if [ ! -e $WORDLIST ]; then                                             # Check if the wordlist exists
@@ -32,7 +33,11 @@ function main {
         if $VERBOSE; then
             regex="^[0-9]"
         else
-            regex="^[23]"
+            if $ONLYOK; then
+                regex="^2"
+            else
+                regex="^[23]"
+            fi
         fi
 
         if ! [[ $resp =~ $regex ]]; then                                    # If query return http code 1* or 4* or 5*
@@ -96,6 +101,9 @@ function parse_args {
                 fi
                 VERBOSE=true;;
 
+            -e|--exists)
+                ONLYOK=true;;
+
             -h|--help)              # Display the help message
                 display_help
                 exit 0;;
@@ -126,6 +134,7 @@ function display_help {
     echo ":: WORDLIST: The path to wordlist to use in the attack."
     echo ":: VERBOSE|QUIET: Operation mode can be specified by '-v|--verbose' or '-q|--quiet'"
     echo ":: VERSION: To see the version and useful informations, use '-V|--version'"
+    echo ":: EXIST: Return only file that exists, that means, only http status code of 200. Use '-e|--exists'"
 
     return 0
 }
