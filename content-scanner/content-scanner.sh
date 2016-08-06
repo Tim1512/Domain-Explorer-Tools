@@ -57,6 +57,8 @@ function main {
         echo "==> Finished brute force in $URL"
         echo ":: Results stored in $OUTPUT"                                     # Showing the location of the result
     fi
+
+    return 0
 }
 
 function parse_args {
