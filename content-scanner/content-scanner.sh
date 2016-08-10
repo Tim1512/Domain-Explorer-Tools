@@ -132,8 +132,8 @@ function display_help {
     echo ":: Usage: domain-explorer [URL] [-w WORDLIST] [-o OUTPUT FILE] "
     echo
     echo ":: URL: The target url to gather information. MUST be a reachable domain."
-    echo ":: OUTPUT: The file to store the output generated."
-    echo ":: WORDLIST: The path to wordlist to use in the attack."
+    echo ":: OUTPUT: The file to store the output generated. Use '-o | --output-file'"
+    echo ":: WORDLIST: The path to wordlist to use in the attack. Use '-w | --wordlist'"
     echo ":: VERBOSE|QUIET: Operation mode can be specified by '-v|--verbose' or '-q|--quiet'"
     echo ":: VERSION: To see the version and useful informations, use '-V|--version'"
     echo ":: EXIST: Return only file that exists, that means, only http status code of 200. Use '-e|--exists'"
