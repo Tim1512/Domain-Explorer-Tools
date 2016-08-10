@@ -10,19 +10,18 @@ A bash script to solve intern domains of a given url:
 - Output host's ips  
 
 #### Parameters:
-- ```-u | --url```: The target url to gather information
 - ```-s | --separator```: The separator to be used in output. The output is ```<domain> <separator> <ip>```.
 - ```-c | --contains```: The program will output only the domains that contains the specified string.
 - ```-o | --output-file```: Specify the output file to program.
 - ```-v | --verbose```: Set operation mode to verbose, note that this can not be used together with ```--quiet```.
 - ```-q | --quiet```: Set operation mode to quiet, note that this can not be used together with ```--verbose```.
-- ```--version```: Outputs relevant information about the script.
+- ```-V | --version```: Outputs relevant information about the script.
 
 #### Usage
 - Give permition for the file:  
 ``` chmod +x domain-explorer.sh ```
 
-- Usage examples:
+##### Usage examples:
 - ```./domain-explorer.sh -u www.fbi.gov --output-file fbi-domains.txt```: This will parse the information and store in ```fbi-domains.txt```.
 - ```./domain-explorer.sh --url www.github.com -s '::::'```: This will parse the information and use ```::::``` as a separator for domain and ip.
 - ```./domain-explorer.sh -u thehackernews.com --contains 'history'```: This will parse the information but only output domains that contains ```history``` in the url.
@@ -54,16 +53,21 @@ A bash script to find files and directories in a given domain, using burte force
 - Try every possibility
 - Output found files or directories
 
+#### Parameters:
+- ```-w | --wordlist```: The wordlist to be used by script.
+- ```-e | --exists```: Only output found file and directories. That means, only output http status code 200.
+- ```-o | --output-file```: Specify the output file to program.
+- ```-v | --verbose```: Set operation mode to verbose, note that this can not be used together with ```--quiet```.
+- ```-q | --quiet```: Set operation mode to quiet, note that this can not be used together with ```--verbose```.
+- ```-V | --version```: Outputs relevant information about the script.
+
 #### Usage
 - Give permition for the file:  
 ``` chmod +x content-scanner.sh ```
 
-- Execute passing the desired url to find hosts (without the 'www'):  
-``` ./content-scanner.sh <your desired url> ```
-
-- Passing wordlist:  
-You can pass your own wordlist for brute force:  
-``` ./content-scanner.sh <your desired url> <path-to-your-wordlist>```
+##### Usage examples:
+- ``` ./content-scanner.sh www.fbi.gov ```: Use the default wordlist and output status code 20* and 3**.
+- ``` ./content-scanner.sh www.github.com -e -w /usr/share/wordlists/blabla.txt```: Specify the wordlist located in ```/usr/share/wordlist/``` to be used instead of the default one and output only directories and files with http status code 200 in the request.
 
 ## Network Block Scan
 A bash script for scan a especified ip range in a network, searching for alive hosts.
