@@ -154,7 +154,7 @@ function parse_args(){
 
 function display_help(){
     echo
-    echo ":: Usage: domain-explorer [-u URL] [-o OUTPUT FILE] [-s SEPARATOR] [-c CONTAINS]"
+    echo ":: Usage: domain-explorer [URL] [-o OUTPUT FILE] [-s SEPARATOR] [-c CONTAINS]"
     echo
     echo ":: URL: The target url to gather information. MUST be a reachable domain."
     echo ":: OUTPUT: The file to store the output generated."
