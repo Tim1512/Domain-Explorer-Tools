@@ -111,7 +111,7 @@ function parse_args {
                 exit 0;;
 
             *)                      # If a different parameter was passed
-                if [ ! -z "$URL" ]; then
+                if [ ! -z "$URL" ] || [[ $1 == -* ]]; then
                     error_with_message "Unknow argument $1"
                 fi
 
