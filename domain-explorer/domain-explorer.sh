@@ -113,13 +113,6 @@ function parse_args(){
                 fi
                 VERBOSE=true;;
 
-            -u|--url)               # Get the url to explore
-                if [ -z $2 ] || [[ $2 == -* ]]; then
-                    error_with_message "Expected argument after url option"
-                fi
-                URL=$2
-                shift;;             # To ensure that the next parameter will not be evaluated again
-
             -s|--separator)         # Get the separator to display the output
                 if [ -z $2 ] || [[ $2 == -* ]]; then
                     error_with_message "Expected argument after separator option"
@@ -142,7 +135,11 @@ function parse_args(){
                 exit 0;;
 
             *)                      # If a different parameter was passed
-                error_with_message "Unknow argument $1";;
+                if [ ! -z $URL ] || [[ $1 == -* ]]; then
+                    error_with_message "Unknow argument $1"
+                fi
+
+                URL=$1;;
 
         esac
         shift                       # Removes the element used in this iteration from parameters
