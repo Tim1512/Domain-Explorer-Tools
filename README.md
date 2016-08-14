@@ -84,14 +84,21 @@ A bash script for scan a especified ip range in a network, searching for alive h
 This will search all alive hosts in 216.58.202.100 ~ 216.58.202.150  
 
 ## Zone Transfer
-A bash script for try a zone transfer in a given domain  
+A bash script for zone transfer in a given domain  
+
+#### Parameters:
+- ```-s | --separator```: The separator to be used in output. The output is ```<domain> <separator> <ip>```.
+- ```-o | --output-file```: Specify the output file to program.
+- ```-v | --verbose```: Set operation mode to verbose, note that this can not be used together with ```--quiet```.
+- ```-q | --quiet```: Set operation mode to quiet, note that this can not be used together with ```--verbose```.
+- ```-V | --version```: Outputs relevant information about the script.
 
 #### Usage
 - Give permition for the file:  
 ``` chmod +x zone-transfer.sh ```
 
 - Execute passing the target for a zone transfer:  
-``` ./zone-transfer.sh <domain for attempt>```
+``` ./zone-transfer.sh <target domain>```
 
 ## License
 This collection of scripts is under the GPLv3 license  
