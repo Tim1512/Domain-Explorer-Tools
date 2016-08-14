@@ -15,30 +15,35 @@ OUTPUT="zone_file.txt"                  # Output file of the program
 URL=""                                  # Target url for the attack
 QUIET=false                             # Operation mode quiet
 VERBOSE=false                           # Operation mode verbose
+SEPARATOR="::"                          # The separator in output
 
 function main {
-    echo "--> Starting zone transfer attempt in $URL"
+    if ! $QUIET; then
+        echo "==> Starting zone transfer attempt in $URL"
+    fi
 
-    echo $URL
+    for server in $(host -t ns $URL | cut -d " " -f 4); do              # Discover all Name Servers of the domain
+        if $VERBOSE; then
+            echo "==> Trying zone transfer in $server"
+        fi
 
-    # Discovering all DNS servers of the domain
-    for server in $(host -t ns $URL | cut -d " " -f4 ); do
-        # Get only the useful information in the zone file
-        host -l $URL $server | grep -E 'has address|name server' | sed 's/\.$//' >> $OUTPUT # Maybe "| tee -a $OUTPUT" instead of ">> $OUTPUT" for real time feedback
-        # Check if zone transfer was successful 
+        if $VERBOSE; then
+            host -l $URL $server | grep -E 'has address|name server' | sed 's/\.$//' | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" | tee -a $OUTPUT;
+        else
+            host -l $URL $server | grep -E 'has address|name server' | sed 's/\.$//' | awk -F ' ' '{print $1"%%"$4}' | sed -e "s/\%\%/$SEPARATOR/g" >> $OUTPUT;
+        fi
+
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
-            echo -e "--> Successful zone transfer in server: $server\n--> Results are in $OUTPUT"
-            # Exit program with success
+            echo -e ":: Successful zone transfer in server: $server\n:: Results are in $OUTPUT"
             exit 0
         fi
-        # If zone transfer was not successful
-        echo "--> Failed zone transfer in $server"
+
+        echo ":: Error: Failed zone transfer in $server"                # If zone transfer was not successful
     done
 
-    # If the program still running, there are no results
-    echo "--> Unable to do zone transfer in $URL"
+    echo ":: Unable to do zone transfer in $URL"                        # If the program still running, there are no results
 
-    return 1;
+    exit 1;
 }
 
 function parse_args {
@@ -61,6 +66,13 @@ function parse_args {
                     error_with_message "Expected argument after output file option"
                 fi
                 OUTPUT=$2
+                shift;;             # To ensure that the next parameter will not be evaluated again
+
+            -s|--separator)         # Get the separator to display the output
+                if [ -z $2 ] || [[ $2 == -* ]]; then
+                    error_with_message "Expected argument after separator option"
+                fi
+                SEPARATOR=$2
                 shift;;             # To ensure that the next parameter will not be evaluated again
 
             -q|--quiet)             # Set the program operation mode to quiet
@@ -98,10 +110,11 @@ function parse_args {
 
 function display_help {
     echo
-    echo ":: Usage: zone-trasfer [URL] [-o OUTPUT FILE] "
+    echo ":: Usage: zone-trasfer [URL] [-o OUTPUT FILE] [ -s --SEPARATOR ]"
     echo
     echo ":: URL: The target url to gather information. MUST be a reachable domain."
     echo ":: OUTPUT: The file to store the output generated. Use '-o | --output-file'"
+    echo ":: SEPARATOR: The separator of the domain found and the IP in output. Ex: hide.google.com::200.175.224.99 Separator='::'"
     echo ":: VERBOSE|QUIET: Operation mode can be specified by '-v|--verbose' or '-q|--quiet'"
     echo ":: VERSION: To see the version and useful informations, use '-V|--version'"
 
