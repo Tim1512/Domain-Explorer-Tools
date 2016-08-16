@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #------------------------------------------------------------------------------------------------------------
-# Program to locate and solve intern domains of a given website
+# Script to automate DNS information gather of a domain
 # 
 # This code is under the GPLv3 license. See LICENSE for more informations 
 #
