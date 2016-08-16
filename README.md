@@ -22,9 +22,9 @@ A bash script to solve intern domains of a given url:
 ``` chmod +x domain-explorer.sh ```
 
 ##### Usage examples:
-- ```./domain-explorer.sh -u www.fbi.gov --output-file fbi-domains.txt```: This will parse the information and store in ```fbi-domains.txt```.
-- ```./domain-explorer.sh --url www.github.com -s '::::'```: This will parse the information and use ```::::``` as a separator for domain and ip.
-- ```./domain-explorer.sh -u thehackernews.com --contains 'history'```: This will parse the information but only output domains that contains ```history``` in the url.
+- ```./domain-explorer.sh www.fbi.gov --output-file fbi-domains.txt```: This will parse the information and store in ```fbi-domains.txt```.
+- ```./domain-explorer.sh www.github.com -s '::::'```: This will parse the information and use ```::::``` as a separator for domain and ip.
+- ```./domain-explorer.sh thehackernews.com --contains 'history'```: This will parse the information but only output domains that contains ```history``` in the url.
 
 ## Brute Force Subdomain
 A bash script to find subdomains of a given url, using brute force approach:  
@@ -99,6 +99,23 @@ A bash script for zone transfer in a given domain
 
 - Execute passing the target for a zone transfer:  
 ``` ./zone-transfer.sh <target domain>```
+
+## DNS Sucker
+A bash script to automate DNS info gather  
+
+#### Parameters:
+- ```-e | --except```: Do not execute specific queries.
+- ```-o | --output```: Specify the output file to program.
+- ```-v | --verbose```: Set operation mode to verbose.
+- ```-a | --all```: Execute all possible DNS queries, except the ones pointed in ```-e|--except```
+- ```-V | --version```: Outputs relevant information about the script.
+
+#### Usage
+- Give permition for the file:  
+``` chmod +x dns-sucker.sh ```
+
+##### Usage examples:
+- ```./dns-sucker.sh www.fbi.gov --output fbi-dns.txt --except MX PTR```
 
 ## License
 This collection of scripts is under the GPLv3 license  
