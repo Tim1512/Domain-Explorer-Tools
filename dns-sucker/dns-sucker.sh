@@ -32,7 +32,7 @@ function parse_args {
 
             -e|--except)            # Queries to ignore
                 until [[ $2 == -* ]] || [ -z $2 ] || [[ $2 =~ \. ]]; do
-                    EXCEPT=("${EXCEPT[@]}" "$2")  
+                    EXCEPT+=($2)  
                     shift
                 done
 
