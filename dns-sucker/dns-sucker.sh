@@ -1,12 +1,47 @@
 #!/bin/bash
 
+#------------------------------------------------------------------------------------------------------------
+# Program to locate and solve intern domains of a given website
+# 
+# This code is under the GPLv3 license. See LICENSE for more informations 
+#
+# Developer - Giovani Ferreira
+#------------------------------------------------------------------------------------------------------------
+
+
 declare -A QUERIES                                  # Associative array with several DNS query types description
 DEFAULT=(A AAAA CNAME HINFO MX NS PTR SOA SRV)      # Default QUERIES to perform
 EXCEPT=()                                           # Queries that should not be executed
 ALL=false                                           # To execute all possible queries
 VERBOSE=false                                       # Operation mode verbose
-OUTPUT=""                                           # File to send the output
+OUTPUT="/dev/null"                                  # File to send the output - Default: trash /dev/null
 DOMAIN=""                                           # Target domain to extract DNS information
+
+function main {
+    if $VERBOSE; then
+        echo "==> Starting DNS collect in $DOMAIN" | tee -a $OUTPUT
+    fi
+
+    if $ALL; then
+        DEFAULT=("${!QUERIES[@]}")                  # Set DEFAULT as the keys of QUERIES
+    fi
+
+    for q in "${DEFAULT[@]}"; do
+        if ! contains EXCEPT[@] $q; then
+            echo -e "\n-----------------------------------------------------------------------------" | tee -a $OUTPUT
+            echo ":: DNS Query $q: ${QUERIES[$q]}" | tee -a $OUTPUT
+            host -t $q grandbusiness.com.br | tee -a $OUTPUT
+        fi
+    done
+
+    if $VERBOSE; then
+        echo -e "\n==> Finished DNS collect in $DOMAIN" | tee -a $OUTPUT
+    fi
+
+    if [ $OUTPUT != "/dev/null" ]; then
+        echo ":: Result saved in $OUTPUT"
+    fi
+}
 
 function parse_args {
     if [ $# -eq 0 ]; then           # Check if at least one arg was passed
@@ -67,9 +102,11 @@ function parse_args {
     return 0
 }
 
-function contain {
-    for key in "${!QUERIES[@]}"; do
-        if [ $key == "$1" ]; then
+function contains {
+    eval local keys=(\${$1})       # Get the array passed as parameter
+
+    for key in "${keys[@]}"; do
+        if [ $key == "$2" ]; then
             return 0
         fi
     done
@@ -94,6 +131,10 @@ function error_with_message {
     exit 1
 }
 
+#------------------------------------------------------------------------------------------------------------
+# Defining all possible queries and description of DNS protocol
+# This exchange memory for usability
+#------------------------------------------------------------------------------------------------------------
 QUERIES[A]="IPv4 Address Record"
 QUERIES[AAAA]="IPv6 Address Record"
 QUERIES[AFSDB]="AFS Database Record"
@@ -137,18 +178,8 @@ QUERIES[AXFR]="Authoritative Zone Transfer"
 QUERIES[IXFR]="Incremental Zone Transfer"
 QUERIES[OPT]="Option"
 
-
-for t in "${DEFAULT[@]}"; do
-    # echo "DNS Query $t: ${QUERIES[$t]}"
-    host -t $t grandbusiness.com.br
-done
-
-if contain "PTR"; then
-    # echo contains
-    :
-fi
-
+#------------------------------------------------------------------------------------------------------------
+# Starting the script
+#------------------------------------------------------------------------------------------------------------
 parse_args $@
-
-echo ${EXCEPT[@]}
-echo $DOMAIN
+main
