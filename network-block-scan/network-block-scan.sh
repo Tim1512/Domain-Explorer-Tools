@@ -5,8 +5,7 @@
 #
 # Program to scan a especified ip range block in a giver network. Searching for alive hosts in this range.
 # 
-# This code is under the license WTFPL: 
-# http://www.wtfpl.net/
+# This code is under the GPLv3 license. See LICENSE for more informations.
 #
 # Developer - Giovani Ferreira
 #------------------------------------------------------------------------------------------------------------
