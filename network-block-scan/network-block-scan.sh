@@ -25,6 +25,10 @@ function main {
 
     hosts=$(((2 ** (32 - $MASK)) - 2))      # Calculates valid IP adresses in the network
 
+    if $VERBOSE; then
+        echo "==> Starting scan in $NETWORK.$(($FIRST - 1))/$MASK"
+    fi
+
     if [ $(($FIRST + ($hosts - 1))) -lt $LAST ]; then
         error_with_message "Invalid last option. Out of bounds in the network. Range: $NETWORK.$FIRST to $NETWORK.$(($FIRST + ($hosts - 1)))"
     fi
@@ -41,10 +45,6 @@ function main {
         error_with_message "Invalid range - Initial value is greater than last"
     fi
 
-    if $VERBOSE; then
-        echo "==> Starting scan in $NETWORK.$(($FIRST - 1))/$MASK"
-    fi
-
     echo "==> Scanning from $NETWORK.$START to $NETWORK.$LAST"
 
     for octet in $(seq $START $LAST); do    # Iterates through all valid adresses in the network until the last desired
@@ -55,14 +55,14 @@ function main {
         pcode=$?
 
         if [ $pcode -eq 0 ]; then
-            echo ":: Host $NETWORK.$octet is up! (Answering ping)"
+            echo ":: Host $NETWORK.$octet is up! (Answering ping)" | tee -a $OUTPUT
         fi
 
         host=$(host $NETWORK.$octet) 
 
         hcode=$?
 
-        if [ $hcode -eq 0 ]; then               # Check if host sequence command returned a result
+        if [ $hcode -eq 0 ]; then
             echo ":: Host $NETWORK.$octet DNS lookup: $(echo $host | cut -d ' ' -f 5 | grep -v $NETWORK | sed 's/\.$//')" | tee -a $OUTPUT
         fi
 
@@ -167,6 +167,10 @@ function parse_args {
     fi
 
     MASK=$(echo $NETWORK | grep -oP "\d{1,3}$")
+
+    if [ $MASK -lt 24 ]; then
+        error_with_message "This script only supports networks with mask greater or equal to 24"
+    fi
 
     lastoctet=$(echo $NETWORK | sed 's/\/.*$//' | grep -oP "\d{1,3}$")
     if [ $lastoctet -gt $FIRST ]; then
