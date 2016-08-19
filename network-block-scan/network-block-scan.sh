@@ -11,41 +11,73 @@
 #------------------------------------------------------------------------------------------------------------
 
 NETWORK=                                    # Network to perform the scan
-OUTPUT=                                     # File to write the output
+OUTPUT="/dev/null"                          # File to write the output
 VERBOSE=false                               # Operation mode verbose
-QUIET=false                                 # Operatiom mode quiet
 EXCEPT=()                                   # Hosts to ignore
-FIRST=1                                     # First host of the network to scan
-LAST=254                                    # Last host of the network to scan
+FIRST=1                                     # First valid host of the network
+START=0                                     # The host to start the scan
+LAST=0                                      # Last host of the network to scan
 MASK=                                       # Network mask
 
+trap "exit" INT                             # Set trap to exit script when receiving a sigint
+
 function main {
-    # Check if the url was given
-    if [ -z $1 ] || [ -z $2 ] || [ -z $3 ]; then
-        echo -e "Incorret usage, use the correct arguments:\n$0 <first-3-octets-of-the-network-ip> <initial-value-of-the-last-octet> <final-value-of-the-last-octet>\nExample: $0 172.168.22 105 200"
-        # Abort the script if parameters are incorrect
-        exit 1
+
+    hosts=$(((2 ** (32 - $MASK)) - 2))      # Calculates valid IP adresses in the network
+
+    if [ $(($FIRST + ($hosts - 1))) -lt $LAST ]; then
+        error_with_message "Invalid last option. Out of bounds in the network. Range: $NETWORK.$FIRST to $NETWORK.$(($FIRST + ($hosts - 1)))"
     fi
 
-    # Feedback for user
-    echo "--> Starting scan in $1.xxx"
+    if [ $LAST -eq 0 ]; then                # If last argument was not given
+        LAST=$(($FIRST + ($hosts - 1)))
+    fi
 
-    RESULT="alive_hosts.txt"
+    if [ $START -eq 0 ]; then               # If start argument was not given
+        START=$FIRST
+    fi
 
-    # Checking the hosts in the ip range
-    for octet in $(seq $2 $3); do
-        # Getting only the hosts that exist in the ip range
-        host=$(host $1.$octet | cut -d ' ' -f5 | grep -v $1 | sed 's/\.$//') 
+    if [ $START -gt $LAST ]; then
+        error_with_message "Invalid range - Initial value is greater than last"
+    fi
 
-        # Checking if the current host exist
-        # If it doesn't exist, the var host will be null
-        if [ ! -z $host ]; then
-            echo "Host found: $(echo "$host - $1.$octet" | tee -a $RESULT)"
+    if $VERBOSE; then
+        echo "==> Starting scan in $NETWORK.$(($FIRST - 1))/$MASK"
+    fi
+
+    echo "==> Scanning from $NETWORK.$START to $NETWORK.$LAST"
+
+    for octet in $(seq $START $LAST); do    # Iterates through all valid adresses in the network until the last desired
+        echo -ne "----> Trying for $NETWORK.$octet...                 \r"
+
+        ping -q -W 4 -c 1 $NETWORK.$octet &> /dev/null
+        
+        pcode=$?
+
+        if [ $pcode -eq 0 ]; then
+            echo ":: Host $NETWORK.$octet is up! (Answering ping)"
+        fi
+
+        host=$(host $NETWORK.$octet) 
+
+        hcode=$?
+
+        if [ $hcode -eq 0 ]; then               # Check if host sequence command returned a result
+            echo ":: Host $NETWORK.$octet DNS lookup: $(echo $host | cut -d ' ' -f 5 | grep -v $NETWORK | sed 's/\.$//')" | tee -a $OUTPUT
+        fi
+
+        if [ $pcode -eq 0 ] || [ $hcode -eq 0 ]; then
+            echo
         fi
     done
 
-    # Telling user where to find the alive hosts
-    echo -e "--> Scan finished\n--> Results are in $RESULT"
+    echo "==> Scan finished in network $NETWORK.$(($FIRST - 1))/$MASK"
+    
+    if [ ! $OUTPUT == "/dev/null" ]; then
+        echo "==> Results are stored in $OUTPUT"
+    fi
+
+    return 0
 }
 
 function parse_args {
@@ -70,22 +102,16 @@ function parse_args {
                 OUTPUT=$2
                 shift;;                     # To ensure that the next parameter will not be evaluated again
 
-            -q|--quiet)                     # Set the program operation mode to quiet
-                if $VERBOSE; then           # Program can not behave quiet and verbose at same time
-                    error_with_message "Operation mode can not be quiet and verbose at the same time"
-                fi
-                QUIET=true;;
-
             -f|--first)                     # Set the first host in the network to scan
                 if [ -z $2 ] || [[ $2 == -* ]]; then
                     error_with_message "Expected argument after first host option"
                 fi
 
-                if [[ ! $2 =~ ^([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$ ]]; then
+                if [[ ! $2 =~ ^([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-4])$ ]] || [ $2 -eq 0 ]; then
                     error_with_message "Invalid argument for first option"
                 fi
 
-                FIRST=$2
+                START=$2
                 shift;;
 
             -l|--last)                      # Set the first host in the network to scan
@@ -93,17 +119,14 @@ function parse_args {
                     error_with_message "Expected argument after first host option"
                 fi
 
-                if [[ ! $2 =~ ^([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$ ]]; then
-                    error_with_message "Invalid argument for first option"
+                if [[ ! $2 =~ ^([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-4])$ ]] || [ $2 -eq 0 ]; then
+                    error_with_message "Invalid argument for last option"
                 fi
 
                 LAST=$2
                 shift;;
 
             -v|--verbose)                   # Set the program operation mode to verbose 
-                if $QUIET; then             # Program can not behave quiet and verbose at same time
-                    error_with_message "Operation mode can not be quiet and verbose at the same time"
-                fi
                 VERBOSE=true;;
 
             -e|--except)                    # Hosts to ignore
@@ -147,7 +170,7 @@ function parse_args {
 
     lastoctet=$(echo $NETWORK | sed 's/\/.*$//' | grep -oP "\d{1,3}$")
     if [ $lastoctet -gt $FIRST ]; then
-        FIRST=$lastoctet
+        FIRST=$(($FIRST + $lastoctet))
     fi
 
     NETWORK=$(echo $NETWORK | grep -oP "\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b" | grep -oP "\b(\d{1,3}\.){2}\d{1,3}\b")
@@ -162,7 +185,7 @@ function display_help {
     echo ":: URL: The target url to gather information. MUST be a reachable domain."
     echo ":: OUTPUT: The file to store the output generated. Use '-o | --output-file'"
     echo ":: WORDLIST: The path to wordlist to use in the attack. Use '-w | --wordlist'"
-    echo ":: VERBOSE|QUIET: Operation mode can be specified by '-v|--verbose' or '-q|--quiet'"
+    echo ":: VERBOSE: Operation mode can be specified by '-v|--verbose'"
     echo ":: VERSION: To see the version and useful informations, use '-V|--version'"
     echo ":: EXIST: Return only file that exists, that means, only http status code of 200. Use '-e|--exists'"
 
