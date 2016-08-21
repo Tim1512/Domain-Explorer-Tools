@@ -19,7 +19,7 @@ START=0                                     # The host to start the scan
 LAST=0                                      # Last host of the network to scan
 MASK=                                       # Network mask
 
-trap "exit" INT                             # Set trap to exit script when receiving a sigint
+trap "echo; exit" INT                       # Set trap to exit script when receiving a sigint
 
 function main {
 
