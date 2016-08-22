@@ -30,7 +30,7 @@ function main {
         if ! contains EXCEPT[@] $q; then
             echo -e "\n-----------------------------------------------------------------------------" | tee -a $OUTPUT
             echo ":: DNS Query $q: ${QUERIES[$q]}" | tee -a $OUTPUT
-            host -t $q grandbusiness.com.br | tee -a $OUTPUT
+            host -t $q $DOMAIN | tee -a $OUTPUT
         fi
     done
 
