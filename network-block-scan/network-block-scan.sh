@@ -181,14 +181,15 @@ function parse_args {
 
 function display_help {
     echo
-    echo ":: Usage: domain-explorer [URL] [-w WORDLIST] [-o OUTPUT FILE] "
+    echo ":: Usage: network-block-scan [NETWORK] [-o OUTPUT FILE]"
     echo
-    echo ":: URL: The target url to gather information. MUST be a reachable domain."
-    echo ":: OUTPUT: The file to store the output generated. Use '-o | --output-file'"
-    echo ":: WORDLIST: The path to wordlist to use in the attack. Use '-w | --wordlist'"
+    echo ":: NETWORK: The target network to scan. Must have the mask, for example: 192.168.1.1/24" 
+    echo ":: OUTPUT: The file to store the output generated. Use '-o | --output'"
+    echo ":: EXCEPT: Specify addresses to ignore. Ex: -e 244 243 (only last octet)"
+    echo ":: FIRST: Set the first in address to be scanned. Ex: --first 10 (only last octet)"
+    echo ":: LAST: Set the last address to be scanned. Ex: -l 254 (only last octet)"
     echo ":: VERBOSE: Operation mode can be specified by '-v|--verbose'"
     echo ":: VERSION: To see the version and useful informations, use '-V|--version'"
-    echo ":: EXIST: Return only file that exists, that means, only http status code of 200. Use '-e|--exists'"
 
     return 0
 }
