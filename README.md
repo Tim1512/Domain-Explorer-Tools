@@ -73,7 +73,6 @@ A bash script to find files and directories in a given domain, using burte force
 A bash script for scan a especified ip range in a network, searching for alive hosts.
 
 #### Parameters:
-- ```-s | --separator```: The separator to be used in output. The output is ```<domain> <separator> <ip>```.
 - ```-f | --first```: Set the first in address to be scanned. Ex: --first 10 (only last octet).
 - ```-l | --last```: Set the last address to be scanned. Ex: -l 254 (only last octet).
 - ```-e | --except```: Specify addresses to ignore. Ex: -e 244 243 (only last octet).
