@@ -18,46 +18,21 @@ VERBOSE=false                                   # Operation mode verbose
 trap "exit" INT                                 # Trap for abort scritp with sigint
 
 function main {
-    # Check if the url was given
-    if [ -z $1 ]; then
-        echo -e "Incorret usage, should consider pass the url(without 'www'):\n$0 website.com wordlist(optional)"
-        # Abort the script if no URL was given
-        exit 1
-    fi
+    echo "==> Starting bruteforce in $DOMAIN..."
 
-    # File name for the result
-    SUBDOMAINS="subdomains.txt"
+    for subdomain in $(cat $WORDLIST); do
+        ping -q -c1 $subdomain.$DOMAIN > /dev/null 2> /dev/null
 
-    # Set the default wordlist file
-    WORDLIST="wordlist.txt"
-    # Check if user pointed for another wordlist
-    if [ ! -z $2 ]; then
-        # Set the desired list from user
-        WORDLIST="$2"
-    fi
-
-    # Displaying feedback
-    echo "--> Starting bruteforce in $1..."
-
-    # Check if the file exists
-    if [ ! -e $WORDLIST ]; then
-        # Abort the script execution
-        echo "Unable to locate the wordlist $WORDLIST"
-        exit 1
-    fi
-
-    # Reading possible subDomains from list
-    for sub in $(cat $WORDLIST); do
-        # Ping subdomain
-        ping -q -c1 $sub.$1 > /dev/null 2> /dev/null
-        # Check if host exists
-        if [ $? -eq 0 ]; then
-            echo "--> Found subdomain: $(echo $sub.$1 | tee -a $SUBDOMAINS)"
+        if [ $? -eq 0 ]; then                   # Check if host answered ping
+            echo ":: Found subdomain: $(echo $subdomain.$DOMAIN | tee -a $OUTPUT)"
         fi
     done
 
-    # Displaying feedback
-    echo -e "Finished bruteforce.\nResults stored in $SUBDOMAINS"
+    echo -e "==> Finished bruteforce."
+    
+    if [ ! -z $OUTPUT ]; then
+        echo "==> Results stored in $OUTPUT"
+    fi
 }
 
 function parse_args {
@@ -113,6 +88,10 @@ function parse_args {
         error_with_message "The target domain must be passed"
     fi
 
+    if [ ! -e $WORDLIST ]; then                 # Check if wordlist exists
+        error_with_message "Unable to locate the wordlist $WORDLIST"
+    fi
+
     return 0
 }
 
@@ -137,4 +116,4 @@ function error_with_message {
 
 # Start of script
 parse_args $@
-# main
+main
