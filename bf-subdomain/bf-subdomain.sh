@@ -15,12 +15,14 @@ OUTPUT=                                         # To write output to disk
 WORDLIST="common.wordlist"                      # Default wordlist
 VERBOSE=false                                   # Operation mode verbose
 
-trap "exit" INT                                 # Trap for abort scritp with sigint
+trap "echo; exit" INT                                 # Trap for abort scritp with sigint
 
 function main {
     echo "==> Starting bruteforce in $DOMAIN..."
 
     for subdomain in $(cat $WORDLIST); do
+        echo -ne "----> Trying $subdomain.$DOMAIN...                           \r"
+
         ping -q -c1 $subdomain.$DOMAIN > /dev/null 2> /dev/null
 
         if [ $? -eq 0 ]; then                   # Check if host answered ping
