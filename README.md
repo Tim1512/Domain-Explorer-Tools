@@ -5,23 +5,7 @@ A collection of some useful bash scripts for information gathering and domain ex
 - [Brute Force Subdomain](bf-subdomain/BF-SUBDOMAIN.md)
 - [Content Scanner](content-scanner/CONTENT-SCANNER.md)
 - [Network Block Scan](network-block-scan/NETWORK-BLOCK-SCAN.md)
-
-## Zone Transfer
-A bash script for zone transfer in a given domain  
-
-#### Parameters:
-- ```-s | --separator```: The separator to be used in output. The output is ```<domain> <separator> <ip>```.
-- ```-o | --output-file```: Specify the output file to program.
-- ```-v | --verbose```: Set operation mode to verbose, note that this can not be used together with ```--quiet```.
-- ```-q | --quiet```: Set operation mode to quiet, note that this can not be used together with ```--verbose```.
-- ```-V | --version```: Outputs relevant information about the script.
-
-#### Usage
-- Give permition for the file:  
-``` chmod +x zone-transfer.sh ```
-
-- Execute passing the target for a zone transfer:  
-``` ./zone-transfer.sh <target domain>```
+- [Zone Transfer](zone-transfer/ZONE-TRANSFER.md)
 
 ## DNS Sucker
 A bash script to automate DNS info gather  
