@@ -26,7 +26,10 @@ function main {
         ping -q -c1 $subdomain.$DOMAIN > /dev/null 2> /dev/null
 
         if [ $? -eq 0 ]; then                   # Check if host answered ping
-            echo ":: Found subdomain: $(echo $subdomain.$DOMAIN | tee -a $OUTPUT)"
+            ip=$(host $subdomain.$DOMAIN | grep 'has address' | cut -d ' ' -f 4)
+            if [ ! -z "$ip" ]; then
+                echo ":: Found subdomain: $(echo $subdomain.$DOMAIN :: $ip | tee -a $OUTPUT)"
+            fi
         fi
     done
 
