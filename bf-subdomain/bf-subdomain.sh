@@ -12,7 +12,7 @@
 
 DOMAIN=                                         # Target domain to brute force
 OUTPUT=                                         # To write output to disk
-WORDLIST="common.wordlist"                      # Default wordlist
+WORDLIST="common-wordlist.txt"                  # Default wordlist
 VERBOSE=false                                   # Operation mode verbose
 
 trap "echo; exit" INT                                 # Trap for abort scritp with sigint
@@ -28,7 +28,7 @@ function main {
         if [ $? -eq 0 ]; then                   # Check if host answered ping
             ip=$(host $subdomain.$DOMAIN | grep 'has address' | cut -d ' ' -f 4)
             if [ ! -z "$ip" ]; then
-                echo ":: Found subdomain: $(echo $subdomain.$DOMAIN :: $ip | tee -a $OUTPUT)"
+                echo "[+] Found subdomain: $(echo $subdomain.$DOMAIN :: $ip | tee -a $OUTPUT)"
             fi
         fi
     done
@@ -36,7 +36,7 @@ function main {
     echo -e "==> Finished bruteforce."
     
     if [ ! -z $OUTPUT ]; then
-        echo "==> Results stored in $OUTPUT"
+        echo ":: Results stored in $OUTPUT"
     fi
 }
 
