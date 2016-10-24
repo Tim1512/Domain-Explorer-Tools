@@ -55,7 +55,7 @@ function main {
         pcode=$?
 
         if [ $pcode -eq 0 ]; then
-            echo ":: Host $NETWORK.$octet is up! (Answering ping)" | tee -a $OUTPUT
+            echo "[+] Host $NETWORK.$octet is up! (Answering ping)" | tee -a $OUTPUT
         fi
 
         host=$(host $NETWORK.$octet) 
@@ -63,7 +63,7 @@ function main {
         hcode=$?
 
         if [ $hcode -eq 0 ]; then
-            echo ":: Host $NETWORK.$octet DNS lookup: $(echo $host | cut -d ' ' -f 5 | grep -v $NETWORK | sed 's/\.$//')" | tee -a $OUTPUT
+            echo "[+] Host $NETWORK.$octet DNS lookup: $(echo $host | cut -d ' ' -f 5 | grep -v $NETWORK | sed 's/\.$//')" | tee -a $OUTPUT
         fi
 
         if [ $pcode -eq 0 ] || [ $hcode -eq 0 ]; then
@@ -74,7 +74,7 @@ function main {
     echo "==> Scan finished in network $NETWORK.$(($FIRST - 1))/$MASK"
     
     if [ ! $OUTPUT == "/dev/null" ]; then
-        echo "==> Results are stored in $OUTPUT"
+        echo ":: Results are stored in $OUTPUT"
     fi
 
     return 0
