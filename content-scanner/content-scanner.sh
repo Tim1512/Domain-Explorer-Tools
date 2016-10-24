@@ -8,12 +8,12 @@
 # Developer - Giovani Ferreira
 #------------------------------------------------------------------------------------------------------------
 
-OUTPUT="content.txt"            # File name for the content discovered
-WORDLIST="content.wordlist"     # Set the default wordlist file
-URL=""                          # The target url
-QUIET=false                     # Operation mode quiet
-VERBOSE=false                   # Operation mode verbose
-ONLYOK=false                    # Operation mode only exist
+OUTPUT="content.txt"                # File name for the content discovered
+WORDLIST="content-wordlist.txt"     # Set the default wordlist file
+URL=""                              # The target url
+QUIET=false                         # Operation mode quiet
+VERBOSE=false                       # Operation mode verbose
+ONLYOK=false                        # Operation mode only exist
 
 function main {
     if [ ! -e $WORDLIST ]; then                                             # Check if the wordlist exists
@@ -25,7 +25,7 @@ function main {
     fi
     
     for attempt in $(cat $WORDLIST); do                                     # Read the wordlist and attempt every possibility
-        echo -ne ":: Trying for $URL/$attempt/                              \r"
+        echo -ne "--> Trying for $URL/$attempt/                              \r"
         resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt/)        # Checking for file in domain
 
         regex=""
@@ -41,15 +41,15 @@ function main {
         fi
 
         if ! [[ $resp =~ $regex ]]; then                                    # If query return http code 1* or 4* or 5*
-            echo -ne ":: Trying for $URL/$attempt                           \r"
+            echo -ne "--> Trying for $URL/$attempt                           \r"
 
             resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt)   # Check for directory in domain
 
             if [[ $resp =~ $regex ]]; then                                  # If query return http code 1* or 4* or 5*
-                echo "==> File Found: $(echo $URL/$attempt :: $resp | tee -a $OUTPUT)" 
+                echo "[+] File Found: $(echo $URL/$attempt :: $resp | tee -a $OUTPUT)" 
             fi
         else                                                                # If file exists
-            echo "==> Directory Found: $(echo $URL/$attempt/ :: $resp | tee -a $OUTPUT)"  
+            echo "[+] Directory Found: $(echo $URL/$attempt/ :: $resp | tee -a $OUTPUT)"  
         fi
     done
 

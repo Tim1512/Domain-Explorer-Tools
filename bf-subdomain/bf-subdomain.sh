@@ -15,7 +15,7 @@ OUTPUT=                                         # To write output to disk
 WORDLIST="common-wordlist.txt"                  # Default wordlist
 VERBOSE=false                                   # Operation mode verbose
 
-trap "echo; exit" INT                                 # Trap for abort scritp with sigint
+trap "echo; exit" INT                           # Trap for abort scritp with sigint
 
 function main {
     echo "==> Starting bruteforce in $DOMAIN..."
