@@ -15,7 +15,7 @@ OUTPUT=                                         # To write output to disk
 WORDLIST="common-wordlist.txt"                  # Default wordlist
 VERBOSE=false                                   # Operation mode verbose
 
-trap "echo; exit" INT                           # Trap for abort scritp with sigint
+trap "echo; exit 1" INT                         # Trap for abort scritp with sigint
 
 function main {
     echo "==> Starting bruteforce in $DOMAIN..."
@@ -23,13 +23,18 @@ function main {
     for subdomain in $(cat $WORDLIST); do
         echo -ne "----> Trying $subdomain.$DOMAIN...                           \r"
 
-        ping -q -c1 $subdomain.$DOMAIN > /dev/null 2> /dev/null
+        ip=$(host $subdomain.$DOMAIN | grep 'has address' | cut -d ' ' -f 4)
+        if [ ! -z "$ip" ]; then
+            message="[+] Found subdomain: $(echo $subdomain.$DOMAIN :: $ip)"
 
-        if [ $? -eq 0 ]; then                   # Check if host answered ping
-            ip=$(host $subdomain.$DOMAIN | grep 'has address' | cut -d ' ' -f 4)
-            if [ ! -z "$ip" ]; then
-                echo "[+] Found subdomain: $(echo $subdomain.$DOMAIN :: $ip | tee -a $OUTPUT)"
+            ping -q -W 2 -c1 $subdomain.$DOMAIN &> /dev/null
+            if [ $? -eq 0 ]; then                   # Check if host answered ping
+                message="$message | State: [UP]"
+            else
+                message="$message | State: [FILTERED|DOWN]"
             fi
+
+            echo "$message"
         fi
     done
 
