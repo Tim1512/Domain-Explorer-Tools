@@ -24,7 +24,7 @@ function main {
 
     for server in $(host -t ns $URL | cut -d " " -f 4); do              # Discover all Name Servers of the domain
         if $VERBOSE; then
-            echo "==> Trying zone transfer in $server"
+            echo "---> Trying zone transfer in $server"
         fi
 
         if $VERBOSE; then
@@ -34,14 +34,14 @@ function main {
         fi
 
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
-            echo -e ":: Successful zone transfer in server: $server\n:: Results are in $OUTPUT"
+            echo -e "[+] Successful zone transfer in server: $server\n:: Results are in $OUTPUT"
             exit 0
         fi
 
-        echo ":: Error: Failed zone transfer in $server"                # If zone transfer was not successful
+        echo "[-] Failed zone transfer in $server"                      # If zone transfer was not successful
     done
 
-    echo ":: Unable to do zone transfer in $URL"                        # If the program still running, there are no results
+    echo "[-] Unable to do zone transfer in $URL"                       # If the program still running, there are no results
 
     exit 1;
 }
@@ -122,7 +122,7 @@ function display_help {
 }
 
 function error_with_message {
-    echo ":: Error: $1"
+    echo "[-] Error: $1"
     echo ":: Use -h for help"
     exit 1
 }
