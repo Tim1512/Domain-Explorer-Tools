@@ -20,6 +20,10 @@ trap "echo; exit 1" INT                         # Trap for abort scritp with sig
 function main {
     echo "==> Starting bruteforce in $DOMAIN..."
 
+    if [ ! -z $OUTPUT ]; then
+        echo -e "$(date)\n" >> $OUTPUT
+    fi
+
     for subdomain in $(cat $WORDLIST); do
         echo -ne "----> Trying $subdomain.$DOMAIN...                           \r"
 
@@ -32,6 +36,10 @@ function main {
                 message="$message | State: [UP]"
             else
                 message="$message | State: [FILTERED|DOWN]"
+            fi
+
+            if [ ! -z $OUTPUT ]; then
+                echo "$message" >> $OUTPUT
             fi
 
             echo "$message"
