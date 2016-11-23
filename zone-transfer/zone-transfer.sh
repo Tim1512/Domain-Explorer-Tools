@@ -5,9 +5,6 @@
 #
 # Program for query DNS servers of the domain and try to get the full zone file.
 # 
-# This code is under the license WTFPL: 
-# http://www.wtfpl.net/
-#
 # Developer - Giovani Ferreira
 #------------------------------------------------------------------------------------------------------------
 
