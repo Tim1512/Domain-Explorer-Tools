@@ -27,7 +27,7 @@ function main {
     fi
 
     for q in "${DEFAULT[@]}"; do
-        if ! contains EXCEPT[@] $q; then
+        if ! contains EXCEPT[@] $q; then            # If user asked to skip default query
             echo -e "\n-----------------------------------------------------------------------------" | tee -a $OUTPUT
             echo ":: DNS Query $q: ${QUERIES[$q]}" | tee -a $OUTPUT
             host -t $q $DOMAIN | tee -a $OUTPUT
@@ -126,9 +126,13 @@ function display_help {
 }
 
 function error_with_message {
-    echo ":: Error: $1"
-    echo ":: Use -h for help"
+    echoerr "[-] Error: $1"
+    echoerr ":: Use -h for help"
     exit 1
+}
+
+function echoerr {
+    cat <<< "$@" 1>&2
 }
 
 #------------------------------------------------------------------------------------------------------------

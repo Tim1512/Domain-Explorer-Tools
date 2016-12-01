@@ -35,12 +35,11 @@ function main {
             exit 0
         fi
 
-        echo "[-] Failed zone transfer in $server"                      # If zone transfer was not successful
+        echoerr "[-] Failed zone transfer in $server"                   # If zone transfer was not successful
     done
 
-    echo "[-] Unable to do zone transfer in $URL"                       # If the program still running, there are no results
-
-    exit 1;
+    echoerr "[-] Unable to do zone transfer in $URL"                    # If the program still running, there are no results
+    exit 1
 }
 
 function parse_args {
@@ -119,9 +118,13 @@ function display_help {
 }
 
 function error_with_message {
-    echo "[-] Error: $1"
-    echo ":: Use -h for help"
+    echoerr "[-] Error: $1"
+    echoerr ":: Use -h for help"
     exit 1
+}
+
+function echoerr {
+    cat <<< "$@" 1>&2
 }
 
 parse_args $@

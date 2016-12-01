@@ -26,7 +26,7 @@ function main {
     
     for attempt in $(cat $WORDLIST); do                                     # Read the wordlist and attempt every possibility
         echo -ne "--> Trying for $URL/$attempt/                              \r"
-        resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt/)        # Checking for file in domain
+        resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt/)       # Checking for file in domain
 
         regex=""
 
@@ -43,7 +43,7 @@ function main {
         if ! [[ $resp =~ $regex ]]; then                                    # If query return http code 1* or 4* or 5*
             echo -ne "--> Trying for $URL/$attempt                           \r"
 
-            resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt)   # Check for directory in domain
+            resp=$(curl -s -o /dev/null -w "%{http_code}" $URL/$attempt)    # Check for directory in domain
 
             if [[ $resp =~ $regex ]]; then                                  # If query return http code 1* or 4* or 5*
                 echo "[+] File Found: $(echo $URL/$attempt :: $resp | tee -a $OUTPUT)" 
@@ -55,7 +55,7 @@ function main {
 
     if ! $QUIET ; then
         echo "==> Finished brute force in $URL"
-        echo ":: Results stored in $OUTPUT"                                     # Showing the location of the result
+        echo ":: Results stored in $OUTPUT"                                 # Showing the location of the result
     fi
 
     return 0
@@ -142,9 +142,13 @@ function display_help {
 }
 
 function error_with_message {
-    echo ":: Error: $1"
-    echo ":: Use -h for help"
+    echoerr "[-] Error: $1"
+    echoerr ":: Use -h for help"
     exit 1
+}
+
+function echoerr {
+    cat <<< "$@" 1>&2
 }
 
 #-----------------------------------------------------------------------------------------------------------------------------

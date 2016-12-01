@@ -165,11 +165,14 @@ function display_help(){
     echo ":: VERSION: To see the version and useful informations, use '-V|--version'"
 }
 
-# This function prints a message of error and exits the program
-function error_with_message(){
-    echo ":: Error: $1"
-    echo ":: Use -h for help"
+function error_with_message {
+    echoerr "[-] Error: $1"
+    echoerr ":: Use -h for help"
     exit 1
+}
+
+function echoerr {
+    cat <<< "$@" 1>&2
 }
 
 #-----------------------------------------------------------------------------------------------------------------------------
