@@ -18,6 +18,8 @@ OUTPUT="/dev/null"                                  # File to send the output - 
 DOMAIN=""                                           # Target domain to extract DNS information
 
 function main {
+    echo -e "DNS Sucker started in $(date)\n" | tee -a $OUTPUT
+
     if $VERBOSE; then
         echo "==> Starting DNS collect in $DOMAIN" | tee -a $OUTPUT
     fi
@@ -41,6 +43,10 @@ function main {
     if [ $OUTPUT != "/dev/null" ]; then
         echo ":: Result saved in $OUTPUT"
     fi
+
+    echo -e "\nDNS Sucker started in $(date)" | tee -a $OUTPUT
+
+    return 0
 }
 
 function parse_args {
