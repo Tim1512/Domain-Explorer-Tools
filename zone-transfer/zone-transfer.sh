@@ -15,6 +15,8 @@ VERBOSE=false                           # Operation mode verbose
 SEPARATOR="::"                          # The separator in output
 
 function main {
+    echo -e "Zone transfer started in $(date)\n" | tee -a $OUTPUT
+
     if ! $QUIET; then
         echo "==> Starting zone transfer attempt in $URL"
     fi
@@ -32,6 +34,7 @@ function main {
 
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
             echo -e "[+] Successful zone transfer in server: $server\n:: Results are in $OUTPUT"
+            echo -e "\nZone transfer finished in $(date)" | tee -a $OUTPUT
             exit 0
         fi
 
@@ -39,6 +42,8 @@ function main {
     done
 
     echoerr "[-] Unable to do zone transfer in $URL"                    # If the program still running, there are no results
+    echo -e "\nZone transfer finished in $(date)" | tee -a $OUTPUT
+
     exit 1
 }
 
