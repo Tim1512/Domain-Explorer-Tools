@@ -22,13 +22,8 @@ MASK=                                       # Network mask
 trap "echo; exit" INT                       # Set trap to exit script when receiving a sigint
 
 function main {
-
     hosts=$(((2 ** (32 - $MASK)) - 2))      # Calculates valid IP adresses in the network
-
-    if $VERBOSE; then
-        echo "==> Starting scan in $NETWORK.$(($FIRST - 1))/$MASK"
-    fi
-
+    
     if [ $(($FIRST + ($hosts - 1))) -lt $LAST ]; then
         error_with_message "Invalid last option. Out of bounds in the network. Range: $NETWORK.$FIRST to $NETWORK.$(($FIRST + ($hosts - 1)))"
     fi
@@ -43,6 +38,12 @@ function main {
 
     if [ $START -gt $LAST ]; then
         error_with_message "Invalid range - Initial value is greater than last"
+    fi
+
+    echo -e "Network scan started in $(date)\n" | tee -a $OUTPUT
+
+    if $VERBOSE; then
+        echo "==> Starting scan in $NETWORK.$(($FIRST - 1))/$MASK"
     fi
 
     echo "==> Scanning from $NETWORK.$START to $NETWORK.$LAST"
@@ -71,11 +72,11 @@ function main {
         fi
     done
 
-    echo "==> Scan finished in network $NETWORK.$(($FIRST - 1))/$MASK"
-    
     if [ ! $OUTPUT == "/dev/null" ]; then
         echo ":: Results are stored in $OUTPUT"
     fi
+
+    echo -e "\nNetwork scan finished in $(date)" | tee -a $OUTPUT
 
     return 0
 }
