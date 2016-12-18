@@ -18,11 +18,13 @@ VERBOSE=false                                   # Operation mode verbose
 trap "echo; exit 1" INT                         # Trap for abort scritp with sigint
 
 function main {
-    echo "==> Starting bruteforce in $DOMAIN..."
+    echo -e "Bruteforce subdomain started in $(date)\n"
 
     if [ ! -z $OUTPUT ]; then
-        echo -e "$(date)\n" >> $OUTPUT
+        echo -e "Bruteforce subdomain started in $(date)\n" >> $OUTPUT
     fi
+
+    echo "==> Starting bruteforce in $DOMAIN..."
 
     for subdomain in $(cat $WORDLIST); do
         echo -ne "----> Trying $subdomain.$DOMAIN...                           \r"
@@ -47,10 +49,13 @@ function main {
     done
 
     echo -e "==> Finished bruteforce."
-    
+
     if [ ! -z $OUTPUT ]; then
         echo ":: Results stored in $OUTPUT"
+        echo -e "\nBruteforce subdomain finished in $(date)" >> $OUTPUT
     fi
+
+    echo -e "\nBruteforce subdomain finished in $(date)"
 }
 
 function parse_args {
