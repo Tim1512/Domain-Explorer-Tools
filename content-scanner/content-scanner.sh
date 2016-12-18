@@ -19,6 +19,8 @@ function main {
     if [ ! -e $WORDLIST ]; then                                             # Check if the wordlist exists
         error_with_message "Unable to locate the wordlist $WORDLIST"        # Abort the script execution
     fi
+
+    echo -e "Content scanner started in $(date)\n" | tee -a $OUTPUT
     
     if ! $QUIET ; then
         echo "==> Starting brute force in $URL..."                          # Feedback for the user
@@ -57,6 +59,8 @@ function main {
         echo "==> Finished brute force in $URL"
         echo ":: Results stored in $OUTPUT"                                 # Showing the location of the result
     fi
+
+    echo -e "\nContent scanner started in $(date)" | tee -a $OUTPUT
 
     return 0
 }
