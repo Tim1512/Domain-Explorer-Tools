@@ -19,6 +19,8 @@ NOTSOLVE=false          # To keep all domains without trying to solve ip's
 
 # This function performs the actions to explore a given domain
 function main(){
+    echo -e "Domain exploration started in $(date)\n" | tee -a $OUTPUT
+
     if ! $QUIET; then
         echo "==> Checking $URL..."                             # User feedback
     fi
@@ -74,6 +76,8 @@ function main(){
     rm $DOMAINS index.html 2> /dev/null                         # Cleaning the auxiliary files
     
     echo "==> Hosts are in $OUTPUT!"
+
+    echo -e "\nDomain exploration finished in $(date)" | tee -a $OUTPUT
 
     return 0
 }
